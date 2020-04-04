@@ -1,0 +1,93 @@
+@font-face {
+    font-family: Lato-Semibold;
+    src: url(/assets/fonts/Lato-Semibold.ttf);
+}
+@font-face { 
+    font-family: Lato-Regular;
+    src: url(/assets/fonts/Lato-Regular.ttf);
+}
+
+html {
+    font-family: Lato-Semibold, Verdana, sans-serif;
+    font-size: 10px;
+}
+
+* {
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+.wrapper {
+    width: 850px;
+    position: relative;
+    margin: 100px auto;
+    display: flex;
+    flex-direction: column;
+}
+
+section {
+    width: 100%;
+}
+
+.input_text__item {
+    width: 100%;
+    min-height: 150px;
+    font-family: Lato-Regular;
+    font-size: 2rem;
+    padding: 10px;
+
+}
+
+.keyboard {
+    display: flex;
+    flex-wrap: wrap;
+    font-family: Lato-Semibold;
+    font-size: 2rem;
+    margin-top: 50px;
+    
+}
+
+
+.k-key {
+    width: 50px;
+    height: 50px;
+    border: solid 2px black; 
+    border-radius: 25px;
+    background-color: aqua;
+    margin: 2px;
+    text-align: center;
+    padding-top: 10px;
+    
+}
+
+.k-mod {
+    border: solid 2px black;
+    border-radius: 10px;
+    background-color: royalblue;
+    flex-shrink: 0;
+}
+
+.space {
+    width: 280px;
+}
+
+.backspace, .shift_l {
+    width: 150px;
+}
+
+.capslk, .ctrl_l, .ctrl_r {
+    width: 110px;
+}
+
+.tab, .enter {
+    width: 80px;
+}
+
+.active {
+    background-color: green;
+    border-radius: 15px;
+    /* box-shadow: 0px -40px 20px rgba(0, 0, 0, 0.4) */
+    /* scale: 0.8; */
+}
+
