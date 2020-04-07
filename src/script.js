@@ -1,4 +1,4 @@
-import { 
+import {
   BUTTONS_CONFIG,
   KEY_CLASS,
   DELETE_ACTION,
@@ -6,9 +6,19 @@ import {
   TAB_ACTION,
   ENTER_ACTION,
   BACKSPACE_ACTION,
- } from './config';
+} from './config';
 
-const DEFAULT_LOCALE = 'en';
+const INITIAL_HTML = `
+<div class="wrapper">
+      <section class="input_text">
+            <textarea class="input_text__item" autofocus unselectable="on"></textarea>
+      </section>
+      <div class="text"><br>Клавиатура создана в ОС Windows. Смена языка - левый Alt.</br></div>
+      <section class="keyboard"></section>
+</div>`;
+const EN_LANG = 'en';
+const RU_LANG = 'ru';
+const DEFAULT_LOCALE = EN_LANG;
 
 let currentLocale = localStorage.getItem('locale') || DEFAULT_LOCALE;
 let isShift = false;
@@ -18,73 +28,102 @@ let cursorPosition = 0;
 
 const bodyElement = document.querySelector('body');
 
-bodyElement.insertAdjacentHTML('afterbegin', `
-    <div class="wrapper">
-          <section class="input_text">
-                <textarea class="input_text__item" autofocus unselectable="on"></textarea>
-          </section>
-          <div class="text"><br>Клавиатура создана в ОС Windows. Смена языка - левый Alt.</br></div>
-          <section class="keyboard"></section>
-    </div>`);
+bodyElement.insertAdjacentHTML('afterbegin', INITIAL_HTML);
 const input = document.querySelector('.input_text__item');
 const keyboard = document.querySelector('.keyboard');
 
 const domMapping = new Map();
 
-// eslint-disable-next-line no-restricted-syntax
-for (const [key, { ru, en, className }] of BUTTONS_CONFIG) {
+
+BUTTONS_CONFIG.forEach(([key, { ru, en, className }]) => {
   const buttonElement = document.createElement('div');
   buttonElement.classList.add(...className);
   buttonElement.dataset.code = key;
   buttonElement.innerText = (currentLocale === 'en') ? en : ru;
   domMapping.set(key, buttonElement);
   keyboard.appendChild(buttonElement);
-}
+});
 
-function getKeyLabel(key, currentlocale, isShift, isCaps) {
+
+function getKeyLabel(key) {
   const buttonInfo = BUTTONS_CONFIG.get(key);
 
-  return buttonInfo[`${currentlocale}${(isShift || isCaps) ? 'Shift' : ''}`];
+  return buttonInfo[`${currentLocale}${(isShift || isCaps) ? 'Shift' : ''}`];
 }
 
-function updateDigitKeyboard(currentLocale, isShift, isCaps) {
-  for (const [key, value] of domMapping) {
-    const newLabel = getKeyLabel(key, currentLocale, isShift, isCaps);
+function updateDigitKeyboard() {
+  domMapping.forEach(([key, button]) => {
+    const newLabel = getKeyLabel(key);
     const { isNumber } = BUTTONS_CONFIG.get(key);
 
     if (isNumber) {
-      value.innerText = newLabel;
+      button.innerText = newLabel;
     }
-  }
+  });
 }
 
-function updateNonDigitKeyboard(currentLocale, isShift, isCaps) {
-  for (const [key, value] of domMapping) {
-    const newLabel = getKeyLabel(key, currentLocale, isShift, isCaps);
+function updateNonDigitKeyboard() {
+  domMapping.forEach(([key, value]) => {
+    const newLabel = getKeyLabel(key);
     const { isNumber } = BUTTONS_CONFIG.get(key);
 
     if (!isNumber) {
       value.innerText = newLabel;
     }
-  }
+  });
 }
 
-function updateKeyboard(currentLocale, isShift, isCaps) {
-  updateDigitKeyboard(currentLocale, isShift, isCaps);
-  updateNonDigitKeyboard(currentLocale, isShift, isCaps);
+function updateKeyboard() {
+  updateDigitKeyboard();
+  updateNonDigitKeyboard();
 }
 
 function changeLocale() {
   const storedLocale = localStorage.getItem('locale') || currentLocale;
 
-  if (storedLocale === 'en') {
-    currentLocale = 'ru';
+  if (storedLocale === EN_LANG) {
+    currentLocale = RU_LANG;
   } else {
-    currentLocale = 'en';
+    currentLocale = EN_LANG;
   }
 
   localStorage.setItem('locale', currentLocale);
   updateKeyboard(currentLocale, isShift, isCaps);
+}
+
+
+document.querySelector('.input_text__item').addEventListener('click', (e) => {
+  cursorPosition = e.target.selectionStart;
+});
+
+function deleteSymbol() {
+  const currentValue = input.value;
+  const newValue = [currentValue.slice(0, cursorPosition), currentValue.slice(cursorPosition + 1)].join('');
+  input.value = newValue;
+}
+
+function backspace() {
+  const currentValue = input.value;
+  const newValue = [currentValue.slice(0, cursorPosition - 1), currentValue.slice(cursorPosition)].join('');
+  cursorPosition -= 1;
+  if (cursorPosition < 0) {
+    cursorPosition = 0;
+  }
+  input.value = newValue;
+}
+
+function addSpace() {
+  const currentValue = input.value;
+  const newValue = [currentValue.slice(0, cursorPosition), ' ', currentValue.slice(cursorPosition)].join('');
+  cursorPosition += 1;
+  input.setAttribute('value', newValue);
+}
+
+function addEnter() {
+  const currentValue = input.value;
+  const newValue = [currentValue.slice(0, cursorPosition), '\n', currentValue.slice(cursorPosition)].join('');
+  cursorPosition += 1;
+  input.value = newValue;
 }
 
 function handleMouseDown(event) {
@@ -97,64 +136,32 @@ function handleMouseDown(event) {
       const currentValue = input.value;
       const newValue = [currentValue.slice(0, cursorPosition), event.target.innerText, currentValue.slice(cursorPosition)].join('');
       input.value = newValue;
-      cursorPosition++;
+      cursorPosition += 1;
     } else {
       switch (action) {
         case SPACE_ACTION:
-          addSpace(input);
+          addSpace();
           break;
         case TAB_ACTION:
-          addSpace(input);
-          addSpace(input);
-          addSpace(input);
-          addSpace(input);
+          addSpace();
+          addSpace();
+          addSpace();
+          addSpace();
           break;
         case ENTER_ACTION:
-          addEnter(input);
+          addEnter();
           break;
         case DELETE_ACTION:
-          deleteSymbol(input);
+          deleteSymbol();
           break;
         case BACKSPACE_ACTION:
-          backspace(input);
+          backspace();
+          break;
+        default:
           break;
       }
     }
   }
-}
-
-document.querySelector('.input_text__item').addEventListener('click', (e) => {
-  cursorPosition = e.target.selectionStart;
-});
-
-function deleteSymbol(input) {
-  const currentValue = input.value;
-  const newValue = [currentValue.slice(0, cursorPosition), currentValue.slice(cursorPosition + 1)].join('');
-  input.value = newValue;
-}
-
-function backspace(input) {
-  const currentValue = input.value;
-  const newValue = [currentValue.slice(0, cursorPosition - 1), currentValue.slice(cursorPosition)].join('');
-  cursorPosition--;
-  if (cursorPosition < 0) {
-    cursorPosition = 0;
-  }
-  input.value = newValue;
-}
-
-function addSpace(input) {
-  const currentValue = input.value;
-  const newValue = [currentValue.slice(0, cursorPosition), ' ', currentValue.slice(cursorPosition)].join('');
-  cursorPosition++;
-  input.value = newValue;
-}
-
-function addEnter(input) {
-  const currentValue = input.value;
-  const newValue = [currentValue.slice(0, cursorPosition), '\n', currentValue.slice(cursorPosition)].join('');
-  cursorPosition++;
-  input.value = newValue;
 }
 
 function handleMouseUp(event) {
@@ -165,6 +172,7 @@ function handleMouseUp(event) {
 }
 
 const shifts = document.querySelectorAll('.shift');
+const caps = document.querySelector('.capslk');
 
 function handleShift(event, shiftCode) {
   isShift = !isShift;
@@ -186,8 +194,8 @@ shifts.forEach((element) => {
 });
 
 
-const alt_l = document.querySelector('.alt_l');
-alt_l.addEventListener('click', changeLocale);
+const altLeft = document.querySelector('.alt_l');
+altLeft.addEventListener('click', changeLocale);
 
 function handleCaps() {
   isCaps = !isCaps;
@@ -195,18 +203,17 @@ function handleCaps() {
   updateNonDigitKeyboard(currentLocale, isShift, isCaps);
 }
 
-const caps = document.querySelector('.capslk');
 caps.addEventListener('click', handleCaps);
 
 function handleButtonKeydown(event) {
-  const code = event.code;
+  const { code } = event;
 
   if (['AltLeft', 'AltRight'].includes(code)) {
     event.preventDefault();
     if (code === 'AltLeft') {
       changeLocale();
     }
-  } else if ( code === 'CapsLock') {
+  } else if (code === 'CapsLock') {
     handleCaps();
   } else if (['ShiftLeft', 'ShiftRight'].includes(code)) {
     handleShift(null, code);
@@ -223,7 +230,7 @@ function handleButtonKeydown(event) {
 }
 
 function handleButtonKeyUp(event) {
-  const code = event.code;
+  const { code } = event;
   if (domMapping.has(code)) {
     const buttonElement = domMapping.get(code);
     buttonElement.classList.remove('active');

@@ -1,9 +1,9 @@
-export const KEY_CLASS = 'k-key',
-  DELETE_ACTION =  'DELETE_ACTION',
-  SPACE_ACTION =  'SPACE_ACTION',
-  TAB_ACTION = 'TAB_ACTION',
-  ENTER_ACTION = 'ENTER_ACTION',
-  BACKSPACE_ACTION = 'BACKSPACE_ACTION';
+export const KEY_CLASS = 'k-key';
+export const DELETE_ACTION = 'DELETE_ACTION';
+export const SPACE_ACTION = 'SPACE_ACTION';
+export const TAB_ACTION = 'TAB_ACTION';
+export const ENTER_ACTION = 'ENTER_ACTION';
+export const BACKSPACE_ACTION = 'BACKSPACE_ACTION';
 
 const KEY_CLASS_MODIIER = 'k-mod';
 
