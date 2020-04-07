@@ -1,14 +1,19 @@
-import { BUTTONS_CONFIG } from './config';
+import { 
+  BUTTONS_CONFIG,
+  KEY_CLASS,
+  DELETE_ACTION,
+  SPACE_ACTION,
+  TAB_ACTION,
+  ENTER_ACTION,
+  BACKSPACE_ACTION,
+ } from './config';
+
 const DEFAULT_LOCALE = 'en';
-// const DELETE_ACTION = 'deleteAction';
-// const SHIFT_ACTION = 'shift_action';
+
 let currentLocale = localStorage.getItem('locale') || DEFAULT_LOCALE;
 let isShift = false;
 let isCaps = false;
 let cursorPosition = 0;
-
-const KEY_CLASS = 'k-key';
-// const KEY_CLASS_MODIIER = 'k-mod';
 
 
 const bodyElement = document.querySelector('body');
@@ -16,9 +21,9 @@ const bodyElement = document.querySelector('body');
 bodyElement.insertAdjacentHTML('afterbegin', `
     <div class="wrapper">
           <section class="input_text">
-                <textarea class="input_text__item" autofocus></textarea>
+                <textarea class="input_text__item" autofocus unselectable="on"></textarea>
           </section>
-          <div class="text"><br>Клавиатура создана в ОС Windows. Смена языка - Win.</br></div>
+          <div class="text"><br>Клавиатура создана в ОС Windows. Смена языка - левый Alt.</br></div>
           <section class="keyboard"></section>
     </div>`);
 const input = document.querySelector('.input_text__item');
@@ -65,7 +70,6 @@ function updateNonDigitKeyboard(currentLocale, isShift, isCaps) {
 }
 
 function updateKeyboard(currentLocale, isShift, isCaps) {
-
   updateDigitKeyboard(currentLocale, isShift, isCaps);
   updateNonDigitKeyboard(currentLocale, isShift, isCaps);
 }
@@ -94,26 +98,24 @@ function handleMouseDown(event) {
       const newValue = [currentValue.slice(0, cursorPosition), event.target.innerText, currentValue.slice(cursorPosition)].join('');
       input.value = newValue;
       cursorPosition++;
-      console.log(cursorPosition);
     } else {
-      switch (action){
-        case 'SPACE_ACTION':
+      switch (action) {
+        case SPACE_ACTION:
           addSpace(input);
           break;
-        case 'TAB_ACTION': 
+        case TAB_ACTION:
           addSpace(input);
           addSpace(input);
           addSpace(input);
           addSpace(input);
           break;
-        case 'ENTER_ACTION':
+        case ENTER_ACTION:
           addEnter(input);
           break;
-          break;
-        case 'DELETE_ACTION':
+        case DELETE_ACTION:
           deleteSymbol(input);
           break;
-        case 'BACKSPACE_ACTION':
+        case BACKSPACE_ACTION:
           backspace(input);
           break;
       }
@@ -121,20 +123,23 @@ function handleMouseDown(event) {
   }
 }
 
-document.querySelector('.input_text__item').addEventListener('click', e => {
+document.querySelector('.input_text__item').addEventListener('click', (e) => {
   cursorPosition = e.target.selectionStart;
-})
+});
 
 function deleteSymbol(input) {
   const currentValue = input.value;
-  const newValue = [currentValue.slice(0, cursorPosition), currentValue.slice(cursorPosition+1)].join('');
+  const newValue = [currentValue.slice(0, cursorPosition), currentValue.slice(cursorPosition + 1)].join('');
   input.value = newValue;
 }
 
 function backspace(input) {
   const currentValue = input.value;
-  const newValue = [currentValue.slice(0, cursorPosition-1), currentValue.slice(cursorPosition)].join('');
+  const newValue = [currentValue.slice(0, cursorPosition - 1), currentValue.slice(cursorPosition)].join('');
   cursorPosition--;
+  if (cursorPosition < 0) {
+    cursorPosition = 0;
+  }
   input.value = newValue;
 }
 
@@ -159,127 +164,73 @@ function handleMouseUp(event) {
   }
 }
 
-function handleShiftClick(event) {
+const shifts = document.querySelectorAll('.shift');
+
+function handleShift(event, shiftCode) {
   isShift = !isShift;
   if (isCaps) {
     isCaps = false;
     caps.classList.toggle('hold');
   }
-  event.target.classList.toggle('hold');
+  if (event && event.target) {
+    event.target.classList.toggle('hold');
+  } else {
+    const shiftElem = domMapping.get(shiftCode);
+    shiftElem.classList.toggle('hold');
+  }
   updateKeyboard(currentLocale, isShift, isCaps);
 }
 
-
-
-
-const shifts = document.querySelectorAll('.shift');
-
-shifts.forEach(element => {
-  element.addEventListener('click', handleShiftClick);
+shifts.forEach((element) => {
+  element.addEventListener('click', handleShift);
 });
 
 
+const alt_l = document.querySelector('.alt_l');
+alt_l.addEventListener('click', changeLocale);
 
-const winButton = document.querySelector('.win');
-winButton.addEventListener('click', changeLocale);
-
-function handleCapsClick(e) {
+function handleCaps() {
   isCaps = !isCaps;
   caps.classList.toggle('hold');
   updateNonDigitKeyboard(currentLocale, isShift, isCaps);
 }
 
 const caps = document.querySelector('.capslk');
-caps.addEventListener('click', handleCapsClick);
+caps.addEventListener('click', handleCaps);
 
+function handleButtonKeydown(event) {
+  const code = event.code;
 
+  if (['AltLeft', 'AltRight'].includes(code)) {
+    event.preventDefault();
+    if (code === 'AltLeft') {
+      changeLocale();
+    }
+  } else if ( code === 'CapsLock') {
+    handleCaps();
+  } else if (['ShiftLeft', 'ShiftRight'].includes(code)) {
+    handleShift(null, code);
+  }
+
+  if (domMapping.has(code)) {
+    event.preventDefault();
+    const buttonElement = domMapping.get(code);
+    const evt = document.createEvent('MouseEvents');
+    evt.initEvent('mousedown', true, true);
+    buttonElement.dispatchEvent(evt);
+    buttonElement.classList.add('active');
+  }
+}
+
+function handleButtonKeyUp(event) {
+  const code = event.code;
+  if (domMapping.has(code)) {
+    const buttonElement = domMapping.get(code);
+    buttonElement.classList.remove('active');
+  }
+}
 
 keyboard.addEventListener('mousedown', handleMouseDown);
 keyboard.addEventListener('mouseup', handleMouseUp);
-
-
-
-// function shiftOn() {
-//   shift = true;
-//   console.log(shift);
-// }
-
-// function shiftOff() {
-//   shifts = false;
-//   console.log(shift);
-// }
-
-// function handleButtonClick(event) {
-//   const isKey = event.target.classList.contains(KEY_CLASS);
-//   if (isKey) {
-//     // const code = event.target.dataset.code;
-//     event.target.classList.add('active');
-//     const { isFunctional } = BUTTONS_CONFIG.get(event.target.dataset.code);
-//     if (!isFunctional) {
-//       input.value += event.target.innerText;
-//     }
-//   }
-// }
-
-
-// function handleKeyDownEvent(event) {
-//   const code = event.code;
-//   const hasCustomHandler = BUTTONS_CONFIG.has(code);
-
-//   if (hasCustomHandler) {
-//     event.preventDefault();
-//     const action = BUTTONS_CONFIG.get(code).action;
-//     if (action) {
-//       // switch action
-//       //     case 'ArrowUp': 
-
-//     }
-
-//   }
-// }
-
-
-
-// function handleButtonKeydown(event) {
-//   event.preventDefault();
-//   // const code = event.code;
-//   const { isFunctional, action } = BUTTONS_CONFIG.get(event.code);
-
-//   if (!isFunctional) {
-//     input.value += getKeyLabel(event.code, currentLocale, isShift);
-//   } else {
-//     switch (action) {
-//       case SHIFT_ACTION:
-//         isShift = true;
-//         break;
-//       default:
-//         break;
-//     }
-//   }
-//   const element = domMapping.get(event.code);
-//   element.classList.add('active');
-// }
-
-// function handleButtonKeyUp(event) {
-//   const code = event.code;
-
-//   const element = domMapping.get(code);
-//   element.classList.remove('active');
-// }
-
-
-
-
-
-// shifts.forEach(shift => {
-//   window.addEventListener('keydown', shiftOn);
-//   window.addEventListener('keyup', shiftOff);
-// });
-
-
-// window.addEventListener('keydown', handleButtonKeydown);
-// window.addEventListener('keyup', handleButtonKeyUp);
-// window.addEventListener('keydown', handleKeyDownEvent);
-
-
-
+window.addEventListener('keydown', handleButtonKeydown);
+window.addEventListener('keyup', handleButtonKeyUp);

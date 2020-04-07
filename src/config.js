@@ -1,5 +1,10 @@
-const SHIFT_ACTION = 'shift_action';
-const KEY_CLASS = 'k-key';
+export const KEY_CLASS = 'k-key',
+  DELETE_ACTION =  'DELETE_ACTION',
+  SPACE_ACTION =  'SPACE_ACTION',
+  TAB_ACTION = 'TAB_ACTION',
+  ENTER_ACTION = 'ENTER_ACTION',
+  BACKSPACE_ACTION = 'BACKSPACE_ACTION';
+
 const KEY_CLASS_MODIIER = 'k-mod';
 
 export const BUTTONS_CONFIG = new Map([
@@ -97,7 +102,7 @@ export const BUTTONS_CONFIG = new Map([
     ruShift: 'Del',
     className: [KEY_CLASS, KEY_CLASS_MODIIER],
     isFunctional: true,
-    action: 'DELETE_ACTION'
+    action: DELETE_ACTION,
   }],
   ['Backspace', {
     en: 'Backspace',
@@ -106,7 +111,7 @@ export const BUTTONS_CONFIG = new Map([
     ruShift: 'Backspace',
     className: [KEY_CLASS, KEY_CLASS_MODIIER, 'backspace'],
     isFunctional: true,
-    action: 'BACKSPACE_ACTION'
+    action: BACKSPACE_ACTION,
   }],
   ['Tab', {
     en: 'Tab',
@@ -115,7 +120,7 @@ export const BUTTONS_CONFIG = new Map([
     ruShift: 'Tab',
     className: [KEY_CLASS, KEY_CLASS_MODIIER, 'tab'],
     isFunctional: true,
-    action: 'TAB_ACTION'
+    action: TAB_ACTION,
   }],
   ['KeyQ', {
     en: 'q',
@@ -300,7 +305,7 @@ export const BUTTONS_CONFIG = new Map([
     ruShift: 'Enter',
     className: [KEY_CLASS, KEY_CLASS_MODIIER, 'enter'],
     isFunctional: true,
-    action: 'ENTER_ACTION'
+    action: ENTER_ACTION,
   }],
   ['ShiftLeft', {
     en: 'Shift',
@@ -309,7 +314,6 @@ export const BUTTONS_CONFIG = new Map([
     ruShift: 'Shift',
     className: [KEY_CLASS, KEY_CLASS_MODIIER, 'shift_l', 'shift'],
     isFunctional: true,
-    action: SHIFT_ACTION,
   }],
   ['KeyZ', {
     en: 'z',
@@ -330,7 +334,7 @@ export const BUTTONS_CONFIG = new Map([
     ru: 'с',
     enShift: 'C',
     ruShift: 'С',
-    className: [KEY_CLASS]
+    className: [KEY_CLASS],
   }],
   ['KeyV', {
     en: 'v',
@@ -428,7 +432,7 @@ export const BUTTONS_CONFIG = new Map([
     ruShift: 'Space',
     className: [KEY_CLASS, KEY_CLASS_MODIIER, 'space'],
     isFunctional: true,
-    action: 'SPACE_ACTION'
+    action: SPACE_ACTION,
   }],
   ['AltRight', {
     en: 'Alt',
@@ -468,4 +472,3 @@ export const BUTTONS_CONFIG = new Map([
     className: [KEY_CLASS, KEY_CLASS_MODIIER, 'right'],
   }],
 ]);
-  

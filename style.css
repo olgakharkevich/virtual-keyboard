@@ -71,11 +71,6 @@ section {
     box-shadow: -4px 5px 5px 0px #8C718C; 
 }
 
-.mouse-over {
-    transform: scale(1.1);
-    transition: width 1s ease-in-out 0;
-}
-
 .k-mod {
     border: solid 2px black;
     border-radius: 10px;
@@ -98,21 +93,9 @@ section {
     width: 80px;
 }
 
-.active {
+.active, .hold {
     background-color: rgb(120, 48, 187);
     border-radius: 15px;
     transform: scale(0.9);
     transition: width 1s ease-in-out 0;
 }
-
-.hold {
-    background-color: rgb(120, 48, 187);
-    border-radius: 15px;
-    transform: scale(0.9);
-    transition: width 1s ease-in-out 0;
-}
-
-/* .hidden {
-    display: none;
-} */
-
